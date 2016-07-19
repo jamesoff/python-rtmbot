@@ -11,6 +11,8 @@ EXCHANGE_RATES = {}
 MONEY_RE = r"(?i)(?P<amount>\d+(\.\d{1,2})?) ?(?P<currency>USD|GBP|EUR)"
 MONEY_RE2 = u"(?P<currency>\$|\xa3|\u20ac)(?P<amount>\d+(\.\d{1,2})?)"
 
+TEMP_RE = r"(?i)(?P<minus>(minus |-))(?P<value>[0-9.]+) ?(degrees ?)(?P<unit>C|F)"
+
 
 def _get_exchange_rate(from_currency, to_currency):
     global EXCHANGE_RATES
@@ -72,6 +74,11 @@ def process_message(data):
                 # print "cows"
                 print e
             return
+        matches = re.search(TEMP_RE, line)
+        if matches:
+            unit = matches.group('unit')
+            if unit in ['C', 'c']:
+
     except Exception, e:
         print e
         # print "moo"
