@@ -11,7 +11,7 @@ EXCHANGE_RATES = {}
 MONEY_RE = r"(?i)(?P<amount>\d+(\.\d{1,2})?) ?(?P<currency>USD|GBP|EUR)"
 MONEY_RE2 = u"(?P<currency>\$|\xa3|\u20ac)(?P<amount>\d+(\.\d{1,2})?)"
 
-TEMP_RE = r"(?i)(?P<minus>(minus |-))(?P<value>[0-9.]+) ?(degrees ?)(?P<unit>C|F)"
+TEMP_RE = r"(?i)(?P<minus>(minus |-))?(?P<value>[0-9.]+) ?(degrees ?)?(?P<unit>C|F)"
 
 
 def _get_exchange_rate(from_currency, to_currency):
@@ -46,11 +46,12 @@ def _get_exchange_rate(from_currency, to_currency):
 def process_message(data):
     # print data
     line = data['text']
+    channel = data['channel']
     matches = re.search(MONEY_RE, line)
     if matches:
         c = matches.group('currency').upper()
         a = float(matches.group('amount'))
-        handle_currency(c, a, data['channel'])
+        handle_currency(c, a, channel)
         return
 
     # print "checking 2nd form"
@@ -77,8 +78,26 @@ def process_message(data):
         matches = re.search(TEMP_RE, line)
         if matches:
             unit = matches.group('unit')
+            value = float(matches.group('value'))
+            try:
+                minus = matches.group('minus')
+                if minus is not None and not minus == '':
+                    value = 0 - value
+            except:
+                pass
+            new_value = None
             if unit in ['C', 'c']:
-
+                new_value = value * 1.8 + 32
+                old_unit = 'Celcius'
+                new_unit = 'Fahrenheit'
+            elif unit in ['F', 'g']:
+                new_value = (value - 32) / 1.8
+                old_unit = 'Fahrenheit'
+                new_unit = 'Celcius'
+            if new_value is not None:
+                outputs.append([channel, u"{0:.1f} degrees {1} = {2:.1f} degrees {3}".format(value, old_unit, new_value, new_unit)])
+                # TODO: emoji
+            return
     except Exception, e:
         print e
         # print "moo"
