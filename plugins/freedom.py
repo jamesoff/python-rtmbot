@@ -27,8 +27,8 @@ def _get_exchange_rate(from_currency, to_currency):
     if (now - when) > 86400:
         print "hitting API"
         r = requests.get("http://api.fixer.io/latest?base={}&symbols={}".format(from_currency, to_currency))
-        print "hit API"
-        print r
+        # print "hit API"
+        # print r
         if r.status_code != 200:
             print "Failed to hit fixer API"
             print r
@@ -42,7 +42,7 @@ def _get_exchange_rate(from_currency, to_currency):
 
 
 def process_message(data):
-    print data
+    # print data
     line = data['text']
     matches = re.search(MONEY_RE, line)
     if matches:
@@ -51,11 +51,11 @@ def process_message(data):
         handle_currency(c, a, data['channel'])
         return
 
-    print "checking 2nd form"
+    # print "checking 2nd form"
     try:
         matches = re.search(MONEY_RE2, line)
         if matches:
-            print "matches 2nd form"
+            # print "matches 2nd form"
             c = matches.group('currency')
             a = float(matches.group('amount'))
             if c == '$':
@@ -69,12 +69,12 @@ def process_message(data):
             try:
                 handle_currency(c, a, data['channel'])
             except Exception, e:
-                print "cows"
+                # print "cows"
                 print e
             return
     except Exception, e:
         print e
-        print "moo"
+        # print "moo"
 
 
 def handle_currency(c, a, channel):
