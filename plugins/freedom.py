@@ -47,6 +47,8 @@ def process_message(data):
     # print data
     line = data['text']
     channel = data['channel']
+    if 'http' in line:
+        return
     matches = re.search(MONEY_RE, line)
     if matches:
         c = matches.group('currency').upper()
