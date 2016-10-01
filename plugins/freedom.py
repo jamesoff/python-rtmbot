@@ -44,10 +44,17 @@ def _get_exchange_rate(from_currency, to_currency):
 
 
 def process_message(data):
-    # print data
     line = data['text']
     channel = data['channel']
     if 'http' in line:
+        print 'ignoring line with URL'
+        return
+    try:
+        if time.time() - float(data['ts']) > 5:
+            print 'message is too old'
+            return
+    except Exception as e:
+        print e
         return
     matches = re.search(MONEY_RE, line)
     if matches:
@@ -79,6 +86,7 @@ def process_message(data):
             return
         matches = re.search(TEMP_RE, line)
         if matches:
+            #print 'handling temp'
             unit = matches.group('unit')
             value = float(matches.group('value'))
             try:
@@ -86,6 +94,7 @@ def process_message(data):
                 if minus is not None and not minus == '':
                     value = 0 - value
             except:
+            #    print 'e'
                 pass
             new_value = None
             if unit in ['C', 'c']:
@@ -98,8 +107,11 @@ def process_message(data):
                 new_unit = 'Celcius'
             if new_value is not None:
                 outputs.append([channel, u"{0:.1f} degrees {1} = {2:.1f} degrees {3}".format(value, old_unit, new_value, new_unit)])
+                # print "output: temp"
+                # print "input was:", data
                 # TODO: emoji
             return
+        #print 'nothing'
     except Exception, e:
         print e
         # print "moo"
@@ -116,6 +128,7 @@ def handle_currency(c, a, channel):
             retval = "{0:.2f} {1} == {2:.2f} {3}".format(
                 a, c,
                 a * rate, 'GBP')
+            # print "output:", retval
             outputs.append([channel, retval])
         elif c == 'EUR':
             try:
@@ -132,6 +145,7 @@ def handle_currency(c, a, channel):
                 a, c,
                 a * rate_gbp, 'GBP',
                 a * rate_usd, 'USD')
+            # print "output:", retval
             outputs.append([channel, retval])
         elif c == 'GBP':
             try:
@@ -142,6 +156,7 @@ def handle_currency(c, a, channel):
             retval = "{0:.2f} {1} == {2:.2f} {3}".format(
                 a, c,
                 a / rate, 'USD')
+            # print "output:", retval
             outputs.append([channel, retval])
     except Exception, e:
         print "oh no"
