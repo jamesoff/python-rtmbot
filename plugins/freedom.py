@@ -11,7 +11,7 @@ EXCHANGE_RATES = {}
 MONEY_RE = r"(?i)(?P<amount>\d+(\.\d{1,2})?) ?(?P<currency>USD|GBP|EUR)"
 MONEY_RE2 = u"(?P<currency>\$|\xa3|\u20ac)(?P<amount>\d+(\.\d{1,2})?)"
 
-TEMP_RE = r"(?i)(?P<minus>(minus |-))?(?P<value>[0-9.]+) ?(degrees ?)?(?P<unit>C|F)\b"
+TEMP_RE = r"(?i)(?P<minus>(minus |-))?(?P<value>[0-9.]+) ?(degrees ?)?(?P<unit>C|F)(\b|\Z)"
 
 
 def _get_exchange_rate(from_currency, to_currency):
